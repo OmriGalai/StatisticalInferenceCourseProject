@@ -1,0 +1,17 @@
+---
+title: "Statistical Inference Course Project"
+author: "Omri Galai"
+date: "12/18/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+n = 40
+nosim = 1000
+sim <- data.frame()
+sim <- sapply(1:nosim, function(i) sim <- rbind(sim, rexp(40, 0.2)))
+```
