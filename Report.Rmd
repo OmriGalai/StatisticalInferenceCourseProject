@@ -10,12 +10,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 First let's simulate 1000 draws of 40 exponential random variables and store them in a data frame.
 ```{r}
-set.seed(171742)
+set.seed(5000000)
 n <- 40
 lambda <- 0.2
 nosim <- 1000
 sim <- NULL
-sim <- sapply(1:nosim, function(i) sim = c(sim, rexp(n, lambda)))
+for(i in 1:nosim) sim = rbind(sim, rexp(n, lambda))
 sim <- as.matrix(sim)
 ```
 Now let's take a look at the dimensions of the data frame:
@@ -24,9 +24,23 @@ dim(sim)
 ```
 Central limit theorem posits that the mean of sample averages approximates the population mean (1/lambda = 5, same as population sd) and its standard error should be sigma/sqrt(n):
 ```{r}
-mean(apply(sim, 1, mean))
+means <- apply(sim, 1, mean)
+mean(means)
 1/lambda
-sd(apply(as.matrix(sim), 2, mean))
+sd(means)
 print((1/lambda)/sqrt(n))
 ```
 As expected the simulation statistics are very close to computed values.
+Now we shall see whether the distribution of means approximates a normal one:
+```{r}
+library(ggplot2)
+g <- ggplot(as.data.frame(means), aes(means))
+g <- g + geom_histogram(aes(y = ..density..), binwidth = 0.1, colour = "black")
+g + stat_function(fun = dnorm, args = list(mean = mean(means), sd = sd(means)))
+```
+The histogram is centered at the mean and is from its appearance looks quite similar to normal density we have overlaid. We can also draw a Q-Q plot to get another visual measure of how the data conforms to the normal distribution: 
+```{r}
+par(mfrow = c(1,1))
+qqnorm(means)
+```
+A perfect fit would be a linear relationship between the normal quantiles (on the x axis) and the observed quantile of the sample means (on the y axis). The graph looks similar to a straight line, with the relatively small noise making it a bit "shaky".
