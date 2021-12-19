@@ -38,9 +38,16 @@ g <- ggplot(as.data.frame(means), aes(means))
 g <- g + geom_histogram(aes(y = ..density..), binwidth = 0.1, colour = "black")
 g + stat_function(fun = dnorm, args = list(mean = mean(means), sd = sd(means)))
 ```
-The histogram is centered at the mean and is from its appearance looks quite similar to normal density we have overlaid. We can also draw a Q-Q plot to get another visual measure of how the data conforms to the normal distribution: 
+The histogram is centered at the mean, is mound shaped and is visibly similar to the normal density we have overlaid. We can also draw a Q-Q plot to get another visual measure of how the data conforms to the normal distribution: 
 ```{r}
 par(mfrow = c(1,1))
 qqnorm(means)
+qqline(means)
 ```
-A perfect fit would be a linear relationship between the normal quantiles (on the x axis) and the observed quantile of the sample means (on the y axis). The graph looks similar to a straight line, with the relatively small noise making it a bit "shaky".
+A perfect fit would be a linear relationship between the normal quantiles (on the x axis) and the observed quantiles of the sample means (on the y axis). Based on [this blog post](https://towardsdatascience.com/q-q-plots-explained-5aa8495426c0), we see a quite small skew to the right.
+We can evaluate the same using skewness as well as kurtosis, which Wikipedia define as a "measure of the "tailedness" of the probability distribution". The values for a normal distribution should be 0 and 3, respectively.
+```{r}
+library(moments)
+skewness(means)
+kurtosis(means)
+```
