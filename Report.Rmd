@@ -10,10 +10,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 First let's simulate 1000 draws of 40 exponential random variables and store them in a data frame.
 ```{r}
-n = 40
-nosim = 1000
-sim <- data.frame()
-sim <- sapply(1:nosim, function(i) sim <- rbind(sim, rexp(40, 0.2)))
+set.seed(171742)
+n <- 40
+lambda <- 0.2
+nosim <- 1000
+sim <- NULL
+sim <- sapply(1:nosim, function(i) sim = c(sim, rexp(n, lambda)))
+sim <- as.matrix(sim)
 ```
 Now let's take a look at the dimensions of the data frame:
 ```{r}
@@ -21,8 +24,9 @@ dim(sim)
 ```
 Central limit theorem posits that the mean of sample averages approximates the population mean (1/lambda = 5, same as population sd) and its standard error should be sigma/sqrt(n):
 ```{r}
-apply(sim, 1, mean)
-apply(sim, 1, sd)
-print(1/0.2/sqrt(40))
+mean(apply(sim, 1, mean))
+1/lambda
+sd(apply(as.matrix(sim), 2, mean))
+print((1/lambda)/sqrt(n))
 ```
 As expected the simulation statistics are very close to computed values.
