@@ -5,7 +5,7 @@ date: "12/18/2021"
 output: pdf_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ## Simulation
@@ -35,13 +35,14 @@ print((1/lambda)/sqrt(n))
 As expected the simulation statistics are very close to computed values.
 ## Normality
 Now we shall see whether the distribution of means approximates a normal one:
-```{r}
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 library(ggplot2)
 library(gridExtra)
 g <- ggplot(as.data.frame(means), aes(x = means))
 g <- g + geom_histogram(aes(y = ..density..), binwidth = 0.1, colour = "black")
-g <- g + stat_function(fun = dnorm, args = list(mean = mean(means), sd = sd(means)), colour = "red") + labs(title = "Histogram of sample means and normal density") + theme(title = element_text(size = 8))
-p <- ggplot(as.data.frame(means), aes(sample = means), xlab = "Sample means", ylab = "Density") + theme(plot.title = element_text(size = 10.5))
+g <- g + stat_function(fun = dnorm, args = list(mean = mean(means), sd = sd(means)), colour = "red")
+g <- g + labs(title = "Histogram of sample means and normal density") + theme(title = element_text(size = 8))
+p <- ggplot(as.data.frame(means), aes(sample = means), xlab = "Sample means", ylab = "Density") 
 p <- p + stat_qq(distribution = qnorm, colour = "black") + stat_qq_line(colour = "blue")
 p <- p + labs(title = "Q-Q Plot", xlab = "Normal quantiles", ylab = "Sample quantiles") + theme(plot.title = element_text(size = 10.5))
 gridExtra::grid.arrange(g, p, nrow = 1)
