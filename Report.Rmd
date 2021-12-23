@@ -36,22 +36,9 @@ print((1/lambda)/sqrt(n)) # theoretical standard error
 As expected the simulation statistics are very close to computed values.
 
 ## Normality
-Now we shall see whether the distribution of means approximates a normal one:
-```{r, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
-library(ggplot2)
-library(gridExtra)
-g <- ggplot(as.data.frame(means), aes(x = means))
-g <- g + geom_histogram(aes(y = ..density..), binwidth = 0.1, colour = "black") # creating histogram
-g <- g + stat_function(fun = dnorm, args = list(mean = mean(means), sd = sd(means)), colour = "red") # overlaying normal density
-g <- g + labs(title = "Histogram of sample means and normal density") + theme(title = element_text(size = 8)) # annotating
-p <- ggplot(as.data.frame(means), aes(sample = means), xlab = "Sample means", ylab = "Density") 
-p <- p + stat_qq(distribution = qnorm, colour = "black") + stat_qq_line(colour = "blue")
-p <- p + labs(title = "Q-Q Plot", xlab = "Normal quantiles", ylab = "Sample quantiles") + theme(plot.title = element_text(size = 10.5)) # adding Q-Q plot
-gridExtra::grid.arrange(g, p, nrow = 1) # arranging side by side
-
-```
+Figure 1 contains a histogram and Q-Q plot of the sample distribution (see appendix).
 The histogram is centered at the mean, is mound shaped and is visibly similar to the normal density we have overlaid.
-On the Q-Q plot,  perfect normality would be a linear relationship between the normal quantiles (on the x axis) and the observed quantiles of the sample means (on the y axis). Based on [this blog post](https://towardsdatascience.com/q-q-plots-explained-5aa8495426c0), we see a minimal skew to the right.
+On the Q-Q plot,  perfect normality would be a linear relationship between the normal quantiles (on the x axis) and the observed quantiles of the sample means (on the y axis). We observe an approximately linear relationship with more deviations toward the upper right corner implying a minimal skew to the right (based on [this blog post](https://towardsdatascience.com/q-q-plots-explained-5aa8495426c0).)
 We can evaluate the same using skewness as well as kurtosis, which Wikipedia defines as a "measure of the "tailedness" of the probability distribution". The values for a normal distribution should be 0 and 3, respectively.
 ```{r}
 library(moments)
@@ -59,6 +46,7 @@ skewness(means)
 kurtosis(means)
 ```
 Again, the data is mildly skewed to the right (skewness > 0) and has somewhat lighter tails than expected (kurtosis > 3). However, [rules](https://variation.com/wp-content/distribution_analyzer_help/hs139.htm) of [thumb](https://variation.com/wp-content/distribution_analyzer_help/hs113.htm) imply these are not sizable departure from normality. 
+To sum up, we have seen that the distribution of 1000 samples we generated approximates the expected statistics very accurately and is very close to normal-shaped, as implied by the Central Line Theorem. Numeric evaluation exacerbates the visual impression on normality.
 
 # Part Two - Infernetial Data Analysis Exercise
 In this section we are aiming to derive conclusions about the ToothGrowth data in R package "datasets". We begin with attaching the package and looking at the data:
@@ -68,3 +56,19 @@ dim(ToothGrowth)
 head(ToothGrowth)
 ```
 To make sense of what this data represents we rely on the datasets documentation and see len represents a dependent variable/outcome - tooth length in guinea pigs, with supp[lement type] and dose being independent variables.
+\newpage
+# Appendix
+## Figure 1
+```{r, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
+library(ggplot2)
+library(gridExtra)
+g <- ggplot(as.data.frame(means), aes(x = means))
+g <- g + geom_histogram(aes(y = ..density..), binwidth = 0.1, colour = "black") # creating histogram
+g <- g + stat_function(fun = dnorm, args = list(mean = mean(means), sd = sd(means)), colour = "red") # overlaying normal density
+g <- g + labs(title = "Histogram of sample means (grey) and normal density (red)") + theme(title = element_text(size = 8)) # annotating
+p <- ggplot(as.data.frame(means), aes(sample = means), xlab = "Sample means", ylab = "Density") 
+p <- p + stat_qq(distribution = qnorm, colour = "black") + stat_qq_line(colour = "blue")
+p <- p + labs(title = "Q-Q Plot", x = "Normal quantiles", y = "Sample quantiles") + theme(plot.title = element_text(size = 10.5)) # adding Q-Q plot
+gridExtra::grid.arrange(g, p, nrow = 1) # arranging side by side
+
+```
