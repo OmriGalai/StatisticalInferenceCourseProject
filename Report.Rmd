@@ -13,11 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 First let's simulate 1000 draws of 40 exponential random variables and store them in a data frame.
 ```{r}
 set.seed(5000000)
-n <- 40
-lambda <- 0.2
-nosim <- 1000
 sim <- NULL
-for(i in 1:nosim) sim = rbind(sim, rexp(n, lambda)) # 1000 runs of generating 40 r.vs
+for(i in 1:1000) sim = rbind(sim, rexp(40, 0.2)) # 1000 runs of generating 40 r.vs
 sim <- as.matrix(sim)
 ```
 Now let's take a look at the dimensions of the data frame:
@@ -25,7 +22,7 @@ Now let's take a look at the dimensions of the data frame:
 dim(sim)
 ```
 ## Mean and variance
-Central limit theorem posits that the mean of sample averages approximates the population mean (1/lambda = 5, same as population sd) and its standard error should be sigma/sqrt(n):
+Central limit theorem posits that the mean of sample averages approaches the normal dist., its mean equals population mean (1/lambda = 5, same as population sd) and its standard error  sigma/sqrt(n):
 ```{r}
 means <- apply(sim, 1, mean) # taking the mean by rows
 mean(means)
@@ -36,9 +33,9 @@ print((1/lambda)/sqrt(n)) # theoretical standard error
 As expected the simulation statistics are very close to computed values.
 
 ## Normality
-Figure 1 contains a histogram and Q-Q plot of the sample distribution (see appendix).
+See appendix for Figure 1 and code to generate it.
 The histogram is centered at the mean, is mound shaped and is visibly similar to the normal density we have overlaid.
-On the Q-Q plot,  perfect normality would be a linear relationship between the normal quantiles (on the x axis) and the observed quantiles of the sample means (on the y axis). We observe an approximately linear relationship with more deviations toward the upper right corner implying a minimal skew to the right (based on [this blog post](https://towardsdatascience.com/q-q-plots-explained-5aa8495426c0).)
+On the Q-Q plot. We observe an approximately linear relationship implying good fit to the normal distribution with more deviations toward the upper right corner representing a minimal right skewdness (based on [this blog post](https://towardsdatascience.com/q-q-plots-explained-5aa8495426c0).)
 We can evaluate the same using skewness as well as kurtosis, which Wikipedia defines as a "measure of the "tailedness" of the probability distribution". The values for a normal distribution should be 0 and 3, respectively.
 ```{r}
 library(moments)
@@ -46,19 +43,29 @@ skewness(means)
 kurtosis(means)
 ```
 Again, the data is mildly skewed to the right (skewness > 0) and has somewhat lighter tails than expected (kurtosis > 3). However, [rules](https://variation.com/wp-content/distribution_analyzer_help/hs139.htm) of [thumb](https://variation.com/wp-content/distribution_analyzer_help/hs113.htm) imply these are not sizable departure from normality. 
-To sum up, we have seen that the distribution of 1000 samples we generated approximates the expected statistics very accurately and is very close to normal-shaped, as implied by the Central Line Theorem. Numeric evaluation exacerbates the visual impression on normality.
+To sum up, we have seen that the distribution of 1000 samples of 40 observation each we generated approximates the expected statistical values very accurately and is very close to normal-shaped, as implied by the Central Line Theorem. Numeric evaluation exacerbates the visual impression on normality.
 
 # Part Two - Infernetial Data Analysis Exercise
-In this section we are aiming to derive conclusions about the ToothGrowth data in R package "datasets". We begin with attaching the package and looking at the data:
+In this section we aim to derive conclusions about the ToothGrowth data in R package "datasets". We begin with attaching the package and looking at the data:
 ```{r}
 library(datasets)
 dim(ToothGrowth)
 head(ToothGrowth)
 ```
 To make sense of what this data represents we rely on the datasets documentation and see len represents a dependent variable/outcome - tooth length in guinea pigs, with supp[lement type] and dose being independent variables.
+```{r}
+summary(ToothGrowth)
+xtabs(~supp+dose,data = ToothGrowth)
+```
+The 60 data points are split evenly between the Vitamin C and orange juice conditions, each containing 10 observations of 0.5, 1, and 2 mg dosages each.
+Next we conduct t tests to compare the means in each dosage regimen:
+```{r}
+t.test(ToothGrowth[ToothGrowth$dose == 1,]$len - ToothGrowth[ToothGrowth$dose == 0.5,]$len)
+t.test(ToothGrowth[ToothGrowth$dose == 2,]$len-ToothGrowth[ToothGrowth$dose == 1,]$len)
+
+```
 \newpage
 # Appendix
-## Figure 1
 ```{r, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 library(ggplot2)
 library(gridExtra)
@@ -69,6 +76,6 @@ g <- g + labs(title = "Histogram of sample means (grey) and normal density (red)
 p <- ggplot(as.data.frame(means), aes(sample = means), xlab = "Sample means", ylab = "Density") 
 p <- p + stat_qq(distribution = qnorm, colour = "black") + stat_qq_line(colour = "blue")
 p <- p + labs(title = "Q-Q Plot", x = "Normal quantiles", y = "Sample quantiles") + theme(plot.title = element_text(size = 10.5)) # adding Q-Q plot
-gridExtra::grid.arrange(g, p, nrow = 1) # arranging side by side
+gridExtra::grid.arrange(g, p, nrow = 1, bottom = "Fig. 1") # arranging side by side
 
 ```
