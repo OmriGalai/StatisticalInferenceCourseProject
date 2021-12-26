@@ -8,7 +8,6 @@ output: pdf_document
 ```{r setup, include = TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-# Part One - Simulation Exercise
 ## Simulation
 First let's simulate 1000 draws of 40 exponential random variables and store them in a data frame.
 ```{r}
@@ -48,6 +47,8 @@ kurtosis(means)
 Again, the data is mildly skewed to the right (skewness > 0) and has somewhat lighter tails than expected (kurtosis > 3). However, [rules](https://variation.com/wp-content/distribution_analyzer_help/hs139.htm) of [thumb](https://variation.com/wp-content/distribution_analyzer_help/hs113.htm) imply these are not sizable departure from normality. 
 To sum up, we have seen that the distribution of 1000 samples of 40 observation each we generated approximates the expected statistical values very accurately and is very close to normal-shaped, as implied by the Central Line Theorem. Numeric evaluation exacerbates the visual impression on normality.
 
+## Conclusion
+In this report we showed that by taking a non-normal distribution, namely the exponential one, and sampling repeatedly from it a large number of times, we generated an approximately normal distribution of the *sample* means. After simulating 1000 iterations of n = 40 samples, we inspected the resulting distribution and saw its mean is very close to the population mean; its variability is smaller; and its means exhibit a good fit to a normal distribution, all in accordance with the central limit theorem. 
 \newpage
 # Appendix
 ```{r, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
