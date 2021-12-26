@@ -1,0 +1,30 @@
+---
+title: "Infernetial Analysis of Guinea Pig Tooth Growth Data"
+author: "Omri Galai"
+date: "12/26/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Infernetial Data Analysis Exercise
+In this section we aim to derive conclusions about the ToothGrowth data in R package "datasets". We begin with attaching the package and looking at the data:
+```{r}
+library(datasets)
+dim(ToothGrowth)
+head(ToothGrowth)
+```
+To make sense of what this data represents we rely on the datasets documentation and see len represents a dependent variable/outcome - tooth length in guinea pigs, with supp[lement type] and dose being independent variables.
+```{r}
+summary(ToothGrowth)
+xtabs(~supp+dose,data = ToothGrowth)
+```
+The 60 data points are split evenly between the Vitamin C and orange juice conditions, each containing 10 observations of 0.5, 1, and 2 mg dosages each.
+Next we conduct t tests to compare the means in each dosage regimen:
+```{r}
+library(broom)
+glance(t.test(ToothGrowth[ToothGrowth$dose == 1,]$len - ToothGrowth[ToothGrowth$dose == 0.5,]$len))
+glance(t.test(ToothGrowth[ToothGrowth$dose == 2,]$len-ToothGrowth[ToothGrowth$dose == 1,]$len))
+```
