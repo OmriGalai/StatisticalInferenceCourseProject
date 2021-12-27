@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 ```{r setup, include = TRUE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, tidy.opts=list(width.cutoff=50))
 ```
 ## Simulation
 First let's simulate 1000 draws of 40 exponential random variables and store them in a data frame.
@@ -23,7 +23,7 @@ Now let's take a look at the dimensions of the data frame:
 ```{r}
 dim(sim)
 ```
-## Mean and variance
+## Sample Mean and Variance versus Theretical Mean and Variance
 Central limit theorem posits that the mean of sample averages approaches the normal dist., its mean equals population mean (1/lambda = 5, same as population sd) and its standard error  sigma/sqrt(n):
 ```{r}
 means <- apply(sim, 1, mean) # taking the mean by rows
@@ -33,9 +33,9 @@ sd(means)
 print((1/lambda)/sqrt(n)) # theoretical standard error
 ```
 As expected the simulation statistics are very close to computed values.
-
+Visually, we can see in Figure 1 in the appendix that the population distribution and the sample distribution are centered around the same mean, while the distribution of sample means is less variable than the original distribution.
 ## Normality
-See appendix for Figure 1 and code to generate it.
+See appendix for Figure 2 and code to generate it.
 The histogram is centered at the mean, is mound shaped and is visibly similar to the normal density we have overlaid.
 On the Q-Q plot. We observe an approximately linear relationship implying good fit normal distribution with more deviations toward the upper right corner representing a minimal right skewdness (based on [this blog post](https://towardsdatascience.com/q-q-plots-explained-5aa8495426c0).)
 We can evaluate the same using skewness as well as kurtosis, which Wikipedia defines as a "measure of the "tailedness" of the probability distribution". The values for a normal distribution should be 0 and 3, respectively.
@@ -51,16 +51,28 @@ To sum up, we have seen that the distribution of 1000 samples of 40 observation 
 In this report we showed that by taking a non-normal distribution, namely the exponential one, and sampling repeatedly from it a large number of times, we generated an approximately normal distribution of the *sample* means. After simulating 1000 iterations of n = 40 samples, we inspected the resulting distribution and saw its mean is very close to the population mean; its variability is smaller; and its means exhibit a good fit to a normal distribution, all in accordance with the central limit theorem. 
 \newpage
 # Appendix
-```{r, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
+```{r}
+library(ggplot2)
+seed <- 5000000
+df <- data.frame(xx = c(means, rexp(1000,0.2)), yy = rep(c(0,1),each = 1000))
+g <- ggplot(df,aes(x=xx)) + 
+    geom_histogram(data=subset(df,yy == 0), binwidth = 0.1, fill = "red", alpha = 0.2, guide = guide_legend(labels = c("Exponential deviates","Sample means"), col = c("red","blue"))) +
+    geom_histogram(data=subset(df,yy == 1),binwidth = 0.1, fill = "blue", alpha = 0.2) 
+g
+#g <- g + geom_histogram(aes(y = ..density..), binwidth = 0.1, colour = "black", alpha = 0.5) + stat_function(fun = dnorm, args = list(mean = mean(means), sd = sd(means)))
+#g1 <- g + geom_histogram(aes(y = means), data = exp, binwidth = 0.1, colour = "blue", alpha = 0.5)
+# g <- g + stat_function(fun = dexp, args = list(rate = lambda), color = "red")
+g
+```
+
+```{r}
 library(ggplot2)
 library(gridExtra)
-g <- ggplot(as.data.frame(means), aes(x = means))
-g <- g + geom_histogram(aes(y = ..density..), binwidth = 0.1, colour = "black") # creating histogram
-g <- g + stat_function(fun = dnorm, args = list(mean = mean(means), sd = sd(means)), colour = "red") # overlaying normal density
-g <- g + labs(title = "Histogram of sample means (grey) and normal density (red)") + theme(title = element_text(size = 8)) # annotating
+g2 <- g + stat_function(fun = dnorm, args = list(mean = mean(means), sd = sd(means)), colour = "red") # overlaying normal density
+g2 <- g2 + labs(title = "Histogram of sample means (grey) and normal density (red)") + theme(title = element_text(size = 8)) # annotating
 p <- ggplot(as.data.frame(means), aes(sample = means), xlab = "Sample means", ylab = "Density") 
 p <- p + stat_qq(distribution = qnorm, colour = "black") + stat_qq_line(colour = "blue")
 p <- p + labs(title = "Q-Q Plot", x = "Normal quantiles", y = "Sample quantiles") + theme(plot.title = element_text(size = 10.5)) # adding Q-Q plot
-gridExtra::grid.arrange(g, p, nrow = 1, bottom = "Fig. 1") # arranging side by side
+gridExtra::grid.arrange(g, p, nrow = 1, bottom = "Fig. 2") # arranging side by side
 
 ```
