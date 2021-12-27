@@ -33,7 +33,7 @@ sd(means)
 print((1/lambda)/sqrt(n)) # theoretical standard error
 ```
 As expected the simulation statistics are very close to computed values.
-Visually, we can see in Figure 1 in the appendix that the population distribution and the sample distribution are centered around the same mean, while the distribution of sample means is less variable than the original distribution.
+Visually, we can see in Figure 1 in the appendix that the population distribution and the sample distribution are centered around the same mean (vertical line at x = 5), while the distribution of sample means is less variable than the original distribution (that is, most values are closer to the mean).
 ## Normality
 See appendix for Figure 2 and code to generate it.
 The histogram is centered at the mean, is mound shaped and is visibly similar to the normal density we have overlaid.
@@ -55,18 +55,21 @@ In this report we showed that by taking a non-normal distribution, namely the ex
 library(ggplot2)
 seed <- 5000000
 df <- data.frame(x = c(means, rexp(1000,0.2)), group = rep(c( "Sample Means", "Simulated Exponentials"), each = 1000))
-g <- ggplot(df, aes(x, col = group)) + geom_histogram(binwidth = 0.1, alpha = 0.2) + geom_vline(xintercept = 5) + labs(title = "Histogram of Generated Exponentials and Sample Means")
+g <- ggplot(df, aes(x, col = group)) + geom_histogram(binwidth = 0.1, alpha = 0.2)
+g <- g + geom_vline(xintercept = mean(df[df$group == "Sample Means",1]), color = "red", linetype = "dotdash", alpha = 0.4)  + geom_vline(xintercept = mean(df[df$group == "Simulated Exponentials",1]), color = "blue", linetype = "dotdash", alpha = 0.4)
+g <- g + labs(title = "Histogram of Generated Exponentials and Sample Means", caption = "Fig. 1") + theme(title = element_text(size = 9))
 g
 ```
 
 ```{r}
 library(ggplot2)
 library(gridExtra)
-g2 <- g + stat_function(fun = dnorm, args = list(mean = mean(means), sd = sd(means)), colour = "red") # overlaying normal density
+g2 <- ggplot(as.data.frame(means), aes(x = means))
+g2 <- g2 + geom_histogram(aes(y = ..density..), binwidth = 0.1, colour = "black") # creating histogram
+g2 <- g2 + stat_function(fun = dnorm, args = list(mean = mean(means), sd = sd(means)), colour = "red") # overlaying normal density
 g2 <- g2 + labs(title = "Histogram of sample means (grey) and normal density (red)") + theme(title = element_text(size = 8)) # annotating
 p <- ggplot(as.data.frame(means), aes(sample = means), xlab = "Sample means", ylab = "Density") 
 p <- p + stat_qq(distribution = qnorm, colour = "black") + stat_qq_line(colour = "blue")
-p <- p + labs(title = "Q-Q Plot", x = "Normal quantiles", y = "Sample quantiles") + theme(plot.title = element_text(size = 10.5)) # adding Q-Q plot
-gridExtra::grid.arrange(g, p, nrow = 1, bottom = "Fig. 2") # arranging side by side
-
+p <- p + labs(title = "Q-Q Plot", x = "Normal quantiles", y = "Sample quantiles") + theme(plot.title = element_text(size = 9)) # adding Q-Q plot
+gridExtra::grid.arrange(g2, p, nrow = 1, bottom = "Fig. 2") # arranging side by side
 ```
