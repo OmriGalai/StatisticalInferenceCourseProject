@@ -54,14 +54,8 @@ In this report we showed that by taking a non-normal distribution, namely the ex
 ```{r}
 library(ggplot2)
 seed <- 5000000
-df <- data.frame(xx = c(means, rexp(1000,0.2)), yy = rep(c(0,1),each = 1000))
-g <- ggplot(df,aes(x=xx)) + 
-    geom_histogram(data=subset(df,yy == 0), binwidth = 0.1, fill = "red", alpha = 0.2, guide = guide_legend(labels = c("Exponential deviates","Sample means"), col = c("red","blue"))) +
-    geom_histogram(data=subset(df,yy == 1),binwidth = 0.1, fill = "blue", alpha = 0.2) 
-g
-#g <- g + geom_histogram(aes(y = ..density..), binwidth = 0.1, colour = "black", alpha = 0.5) + stat_function(fun = dnorm, args = list(mean = mean(means), sd = sd(means)))
-#g1 <- g + geom_histogram(aes(y = means), data = exp, binwidth = 0.1, colour = "blue", alpha = 0.5)
-# g <- g + stat_function(fun = dexp, args = list(rate = lambda), color = "red")
+df <- data.frame(x = c(means, rexp(1000,0.2)), group = rep(c( "Sample Means", "Simulated Exponentials"), each = 1000))
+g <- ggplot(df, aes(x, col = group)) + geom_histogram(binwidth = 0.1, alpha = 0.2) + geom_vline(xintercept = 5) + labs(title = "Histogram of Generated Exponentials and Sample Means")
 g
 ```
 
